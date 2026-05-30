@@ -1,5 +1,7 @@
-import '../../../core/network/api_client.dart';
-import '../../../core/constants/api_constants.dart';
+import 'package:mediezy_tech_task/core/constants/api_constants.dart';
+
+import '../../../../core/network/api_client.dart';
+
 import '../models/user_model.dart';
 
 class AuthRemoteDataSource {

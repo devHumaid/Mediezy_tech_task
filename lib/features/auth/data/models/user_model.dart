@@ -22,20 +22,19 @@ class UserModel {
   String get fullName =>
       '${firstName ?? ''} ${lastName ?? ''}'.trim();
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    // Handle nested data object if API wraps response
-    final data = json['data'] ?? json;
-    return UserModel(
-      token:        json['token'] ?? data['token'],
-      userId:       data['id']?.toString() ?? data['user_id']?.toString(),
-      firstName:    data['first_name'],
-      lastName:     data['last_name'],
-      email:        data['email'],
-      mobileNumber: data['mobile_number'],
-      role:         data['role'] ?? data['designation'],
-      location:     data['location'],
-    );
-  }
+factory UserModel.fromJson(Map<String, dynamic> json) {
+  final data = json['user'] ?? json['data'] ?? json;  
+  return UserModel(
+    token:        json['token'],
+    userId:       data['user_id']?.toString(),        
+    firstName:    data['first_name'],
+    lastName:     data['last_name'],
+    email:        data['email'],
+    mobileNumber: data['mobile_number'],
+    role:         data['role'] ?? data['designation'],
+    location:     data['location'],
+  );
+}
 
   Map<String, dynamic> toJson() => {
         'token':         token,

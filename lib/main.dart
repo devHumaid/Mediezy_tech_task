@@ -1,21 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:mediezy_tech_task/features/auth/presentation/pages/splash_screen.dart';
+import 'package:provider/provider.dart';
+import 'core/network/api_client.dart';
+import 'core/theme/app_theme.dart';
+import 'features/auth/presentation/providers/auth_provider.dart';
 
-void main() {
-  runApp(const MyApp());
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await ApiClient.instance.init();
+
+  runApp(const ZyromateApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ZyromateApp extends StatelessWidget {
+  const ZyromateApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mediezy Technologies',
-      theme: ThemeData(
-   
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+
+
+      ],
+      child: MaterialApp(
+        title: 'Zyromate',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: const SplashPage(),
       ),
-      home: Scaffold(),
     );
   }
 }

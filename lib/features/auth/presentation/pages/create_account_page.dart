@@ -1,238 +1,171 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../providers/auth_provider.dart';
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key});
-
   @override
   State<CreateAccountPage> createState() => _CreateAccountPageState();
 }
 
 class _CreateAccountPageState extends State<CreateAccountPage> {
-  final _formKey = GlobalKey<FormState>();
-
-  final _firstNameController    = TextEditingController();
-  final _lastNameController     = TextEditingController();
-  final _emailController        = TextEditingController();
-  final _addressController      = TextEditingController();
-  final _dobController          = TextEditingController();
-  final _mobileController       = TextEditingController();
-  final _locationController     = TextEditingController();
-  final _dojController          = TextEditingController();
-  final _passwordController     = TextEditingController();
-
-  bool _obscurePassword = true;
+  final _formKey              = GlobalKey<FormState>();
+  final _firstNameCtrl        = TextEditingController();
+  final _lastNameCtrl         = TextEditingController();
+  final _emailCtrl            = TextEditingController();
+  final _addressCtrl          = TextEditingController();
+  final _dobCtrl              = TextEditingController();
+  final _mobileCtrl           = TextEditingController();
+  final _locationCtrl         = TextEditingController();
+  final _dojCtrl              = TextEditingController();
+  final _passwordCtrl         = TextEditingController();
+  bool  _obscurePassword      = true;
 
   @override
   void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _emailController.dispose();
-    _addressController.dispose();
-    _dobController.dispose();
-    _mobileController.dispose();
-    _locationController.dispose();
-    _dojController.dispose();
-    _passwordController.dispose();
+    for (final c in [_firstNameCtrl, _lastNameCtrl, _emailCtrl, _addressCtrl,
+      _dobCtrl, _mobileCtrl, _locationCtrl, _dojCtrl, _passwordCtrl]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
   Future<void> _handleSave() async {
     if (!_formKey.currentState!.validate()) return;
-
-    final authProvider = context.read<AuthProvider>();
-    await authProvider.register(
-      firstName:    _firstNameController.text.trim(),
-      lastName:     _lastNameController.text.trim(),
-      email:        _emailController.text.trim(),
-      password:     _passwordController.text.trim(),
-      address:      _addressController.text.trim(),
-      dob:          _dobController.text.trim(),
-      mobileNumber: _mobileController.text.trim(),
-      doj:          _dojController.text.trim(),
-      location:     _locationController.text.trim(),
+    final auth = context.read<AuthProvider>();
+    final success = await auth.register(
+      firstName: _firstNameCtrl.text.trim(), lastName: _lastNameCtrl.text.trim(),
+      email: _emailCtrl.text.trim(),         password: _passwordCtrl.text.trim(),
+      address: _addressCtrl.text.trim(),     dob: _dobCtrl.text.trim(),
+      mobileNumber: _mobileCtrl.text.trim(), doj: _dojCtrl.text.trim(),
+      location: _locationCtrl.text.trim(),
     );
-
     if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Account created! Please login.'),
         backgroundColor: AppColors.success,
-      ),
-    );
-    Navigator.of(context).pop();
+      ));
+      Navigator.of(context).pop();
+    } else if (auth.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(auth.errorMessage!), backgroundColor: AppColors.error,
+      ));
+      auth.clearError();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: _buildAppBar(),
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        leading: GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
+        ),
+        title: const Text('Create Account',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: CircleAvatar(
+              radius: 18, backgroundColor: AppColors.backgroundLight,
+              child: const Icon(Icons.person_outline, size: 20, color: AppColors.textSecondary),
+            ),
+          ),
+        ],
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
           children: [
-            _buildField(
-              label: 'First Name',
-              hint: 'Enter First Name',
-              controller: _firstNameController,
-              validator: (v) =>
-                  v == null || v.isEmpty ? 'Enter first name' : null,
-            ),
-            _buildField(
-              label: 'Last Name',
-              hint: 'Enter Last Name',
-              controller: _lastNameController,
-              validator: (v) =>
-                  v == null || v.isEmpty ? 'Enter last name' : null,
-            ),
-            _buildField(
-              label: 'Email',
-              hint: 'Enter Email',
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'Enter email';
-                if (!v.contains('@')) return 'Enter valid email';
-                return null;
-              },
-            ),
-            _buildField(
-              label: 'Address',
-              hint: 'Enter Address',
-              controller: _addressController,
-              maxLines: 3,
-              validator: (v) =>
-                  v == null || v.isEmpty ? 'Enter address' : null,
-            ),
-            _buildField(
-              label: 'DOB',
-              hint: 'Enter DOB',
-              controller: _dobController,
-              keyboardType: TextInputType.datetime,
-              suffixIcon: Icons.calendar_today_outlined,
-              onSuffixTap: () => _pickDate(_dobController),
-              validator: (v) =>
-                  v == null || v.isEmpty ? 'Enter date of birth' : null,
-            ),
-            _buildField(
-              label: 'Mobile Number',
-              hint: 'Enter Number',
-              controller: _mobileController,
-              keyboardType: TextInputType.phone,
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'Enter mobile number';
-                if (v.length < 10) return 'Enter valid number';
-                return null;
-              },
-            ),
-            _buildField(
-              label: 'Location',
-              hint: 'Enter location',
-              controller: _locationController,
-              validator: (v) =>
-                  v == null || v.isEmpty ? 'Enter location' : null,
-            ),
-            _buildField(
-              label: 'DOJ',
-              hint: 'Enter Date Of Joining',
-              controller: _dojController,
-              keyboardType: TextInputType.datetime,
-              suffixIcon: Icons.calendar_today_outlined,
-              onSuffixTap: () => _pickDate(_dojController),
-              validator: (v) =>
-                  v == null || v.isEmpty ? 'Enter date of joining' : null,
-            ),
-            _buildPasswordField(),
-
-            const SizedBox(height: 32),
-
-            Consumer<AuthProvider>(
-              builder: (_, auth, __) {
-                final isLoading = auth.status == AuthStatus.loading;
-                return Container(
-                  width: double.infinity,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : _handleSave,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+            _field(label: 'First Name', hint: 'Enter First Name', ctrl: _firstNameCtrl,
+                validator: (v) => v!.isEmpty ? 'Required' : null),
+            _field(label: 'Last Name', hint: 'Enter Last Name', ctrl: _lastNameCtrl,
+                validator: (v) => v!.isEmpty ? 'Required' : null),
+            _field(label: 'Email', hint: 'Enter Email', ctrl: _emailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                validator: (v) => v!.isEmpty ? 'Required' : (!v.contains('@') ? 'Invalid email' : null)),
+            _field(label: 'Address', hint: 'Enter Address', ctrl: _addressCtrl,
+                maxLines: 3, validator: (v) => v!.isEmpty ? 'Required' : null),
+            _field(label: 'DOB', hint: 'Enter DOB', ctrl: _dobCtrl,
+                suffixIcon: Icons.calendar_today_outlined,
+                onSuffixTap: () => _pickDate(_dobCtrl),
+                validator: (v) => v!.isEmpty ? 'Required' : null),
+            _field(label: 'Mobile Number', hint: 'Enter Number', ctrl: _mobileCtrl,
+                keyboardType: TextInputType.phone,
+                validator: (v) => v!.isEmpty ? 'Required' : (v.length < 10 ? 'Invalid number' : null)),
+            _field(label: 'Location', hint: 'Enter location', ctrl: _locationCtrl,
+                validator: (v) => v!.isEmpty ? 'Required' : null),
+            _field(label: 'DOJ', hint: 'Enter Date Of Joining', ctrl: _dojCtrl,
+                suffixIcon: Icons.calendar_today_outlined,
+                onSuffixTap: () => _pickDate(_dojCtrl),
+                validator: (v) => v!.isEmpty ? 'Required' : null),
+            // Password
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Password',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    controller: _passwordCtrl,
+                    obscureText: _obscurePassword,
+                    validator: (v) => v!.isEmpty ? 'Required' : (v.length < 6 ? 'Min 6 chars' : null),
+                    decoration: _inputDecoration('Enter Password').copyWith(
+                      suffixIcon: GestureDetector(
+                        onTap: () => setState(() => _obscurePassword = !_obscurePassword),
+                        child: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            size: 18, color: AppColors.textFieldHint),
                       ),
                     ),
-                    child: isLoading
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              color: AppColors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text('Save', style: AppTextStyles.buttonPrimary),
                   ),
-                );
-              },
+                ],
+              ),
             ),
-
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
+            // Save button
+            Consumer<AuthProvider>(builder: (_, auth, __) {
+              final loading = auth.status == AuthStatus.loading;
+              return Container(
+                height: 52,
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ElevatedButton(
+                  onPressed: loading ? null : _handleSave,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent, shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  ),
+                  child: loading
+                      ? const SizedBox(width: 22, height: 22,
+                          child: CircularProgressIndicator(color: AppColors.white, strokeWidth: 2))
+                      : const Text('Save',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.white)),
+                ),
+              );
+            }),
           ],
         ),
       ),
     );
   }
 
-  // ── AppBar ───────────────────────────────────────────────────────────────
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppColors.white,
-      elevation: 0,
-      leading: GestureDetector(
-        onTap: () => Navigator.of(context).pop(),
-        child: const Icon(Icons.arrow_back_ios_new,
-            size: 18, color: AppColors.textPrimary),
-      ),
-      title: const Text(
-        'Create Account',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-        ),
-      ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 16),
-          child: CircleAvatar(
-            radius: 18,
-            backgroundColor: AppColors.backgroundLight,
-            child: const Icon(Icons.person_outline,
-                size: 20, color: AppColors.textSecondary),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildField({
-    required String label,
-    required String hint,
-    required TextEditingController controller,
+  Widget _field({
+    required String label, required String hint,
+    required TextEditingController ctrl,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
-    IconData? suffixIcon,
-    VoidCallback? onSuffixTap,
+    IconData? suffixIcon, VoidCallback? onSuffixTap,
     String? Function(String?)? validator,
   }) {
     return Padding(
@@ -240,47 +173,19 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTextStyles.label),
+          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
           const SizedBox(height: 6),
           TextFormField(
-            controller: controller,
-            keyboardType: keyboardType,
-            maxLines: maxLines,
-            style: AppTextStyles.fieldInput,
-            validator: validator,
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: AppTextStyles.fieldHint,
-              filled: true,
-              fillColor: AppColors.white,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            controller: ctrl, keyboardType: keyboardType,
+            maxLines: maxLines, validator: validator,
+            style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+            decoration: _inputDecoration(hint).copyWith(
               suffixIcon: suffixIcon != null
                   ? GestureDetector(
                       onTap: onSuffixTap,
-                      child: Icon(suffixIcon,
-                          size: 18, color: AppColors.textFieldHint),
+                      child: Icon(suffixIcon, size: 18, color: AppColors.textFieldHint),
                     )
                   : null,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                    color: AppColors.createAccountFieldBorder),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                    color: AppColors.primaryTeal, width: 1.5),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.error),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    const BorderSide(color: AppColors.error, width: 1.5),
-              ),
             ),
           ),
         ],
@@ -288,84 +193,44 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     );
   }
 
-  Widget _buildPasswordField() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Password', style: AppTextStyles.label),
-          const SizedBox(height: 6),
-          TextFormField(
-            controller: _passwordController,
-            obscureText: _obscurePassword,
-            style: AppTextStyles.fieldInput,
-            validator: (v) {
-              if (v == null || v.isEmpty) return 'Enter password';
-              if (v.length < 6) return 'Minimum 6 characters';
-              return null;
-            },
-            decoration: InputDecoration(
-              hintText: 'Enter Password',
-              hintStyle: AppTextStyles.fieldHint,
-              filled: true,
-              fillColor: AppColors.white,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              suffixIcon: GestureDetector(
-                onTap: () =>
-                    setState(() => _obscurePassword = !_obscurePassword),
-                child: Icon(
-                  _obscurePassword
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  size: 18,
-                  color: AppColors.textFieldHint,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                    color: AppColors.createAccountFieldBorder),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                    color: AppColors.primaryTeal, width: 1.5),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.error),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    const BorderSide(color: AppColors.error, width: 1.5),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Date Picker 
-  Future<void> _pickDate(TextEditingController controller) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1950),
-      lastDate: DateTime(2100),
-      builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: AppColors.primaryTeal),
+  InputDecoration _inputDecoration(String hint) => InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(fontSize: 14, color: AppColors.textFieldHint),
+        filled: true, fillColor: AppColors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.createAccountFieldBorder),
         ),
-        child: child!,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        ),
+      );
+
+Future<void> _pickDate(TextEditingController ctrl) async {
+  final picked = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(), firstDate: DateTime(1950), lastDate: DateTime(2100),
+    builder: (ctx, child) => Theme(
+      data: Theme.of(ctx).copyWith(
+        colorScheme: const ColorScheme.light(primary: AppColors.primaryTeal),
       ),
-    );
-    if (picked != null) {
-      controller.text =
-          '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
-    }
+      child: child!,
+    ),
+  );
+  if (picked != null) {
+    // API expects YYYY-MM-DD format
+    ctrl.text =
+        '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
   }
+}
 }
