@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/custom_outline_btn.dart';
+import '../../../../shared/widgets/custom_primary_btn.dart';
 import '../../../dashboard/presentation/pages/dashboard_page.dart';
 import '../providers/auth_provider.dart';
 import 'create_account_page.dart';
@@ -17,7 +19,17 @@ class _LoginPageState extends State<LoginPage> {
   final _mobileController   = TextEditingController();
   final _passwordController = TextEditingController();
   bool  _obscurePassword    = true;
+// Add this bool in your state
+bool get _isFormFilled =>
+    _mobileController.text.trim().isNotEmpty &&
+    _passwordController.text.trim().isNotEmpty;
 
+@override
+void initState() {
+  super.initState();
+  _mobileController.addListener(() => setState(() {}));
+  _passwordController.addListener(() => setState(() {}));
+}
   @override
   void dispose() {
     _mobileController.dispose();
@@ -130,7 +142,7 @@ Future<void> _requestLocationPermission() async {
                 const Spacer(flex: 2),
                 // Logo
                 _ZyromateLogoWidget(),
-                const Spacer(flex: 2),
+                const Spacer(flex: 1),
                 // Mobile / Username field
                 _buildField(
                   controller: _mobileController,
@@ -144,7 +156,7 @@ Future<void> _requestLocationPermission() async {
                 const SizedBox(height: 26),
                 // Login btn
                 _buildLoginButton(),
-                const SizedBox(height: 12),
+                const SizedBox(height: 5),
                 // Create account btn
                 _buildCreateAccountButton(),
                 const Spacer(flex: 3),
@@ -177,7 +189,7 @@ Future<void> _requestLocationPermission() async {
         hintStyle: const TextStyle(fontSize: 14, color: AppColors.textFieldHint),
         filled: true,
         fillColor: AppColors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: const BorderSide(color: AppColors.loginFieldBorder),
@@ -209,7 +221,7 @@ Future<void> _requestLocationPermission() async {
         hintStyle: const TextStyle(fontSize: 14, color: AppColors.textFieldHint),
         filled: true,
         fillColor: AppColors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
         suffixIcon: GestureDetector(
           onTap: () => setState(() => _obscurePassword = !_obscurePassword),
           child: Icon(
@@ -237,56 +249,32 @@ Future<void> _requestLocationPermission() async {
     );
   }
 
-  Widget _buildLoginButton() {
-    return Consumer<AuthProvider>(builder: (_, auth, __) {
-      final loading = auth.status == AuthStatus.loading;
-      return Container(
-        width: double.infinity, height: 50,
-        decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: ElevatedButton(
-          onPressed: loading ? null : _handleLogin,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent, shadowColor: Colors.transparent,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-          ),
-          child: loading
-              ? const SizedBox(width: 22, height: 22,
-                  child: CircularProgressIndicator(color: AppColors.white, strokeWidth: 2))
-              : const Text('Login',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.white)),
-        ),
-      );
-    });
-  }
-
-  Widget _buildCreateAccountButton() {
-    return SizedBox(
-      width: double.infinity, height: 50,
-      child: OutlinedButton(
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const CreateAccountPage()),
-        ),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.textPrimary,
-          side: const BorderSide(color: AppColors.textPrimary, width: 1.2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        ),
-        child: const Text('Create Account',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-      ),
+Widget _buildLoginButton() {
+  return Consumer<AuthProvider>(builder: (_, auth, __) {
+    return PrimaryButton(
+      label: 'Login',
+      onPressed: _isFormFilled ? _handleLogin : null,
+      isLoading: auth.status == AuthStatus.loading,
     );
-  }
+  });
 }
+
+// replace _buildCreateAccountButton()
+Widget _buildCreateAccountButton() {
+  return AppOutlineButton(
+    label: 'Create Account',
+    onPressed: () => Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const CreateAccountPage()),
+    ),
+  );
+}}
 
 class _ZyromateLogoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Image.asset(
       'assets/images/logo.png',
-      width: 235,
+      width: 220,
 
     );
   }

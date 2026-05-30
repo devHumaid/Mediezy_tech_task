@@ -34,4 +34,10 @@ class AppColors {
   static const Color approved = Color(0xFF03624C);
   static const Color rejected = Color(0xFFD32F2F);
   static const Color casual   = Color(0xFFF57C00);
+// Create Account
+  static const Color createAccountBg        = Color(0xFFF1F7F7);
+static const Color createAccountContainer = Color(0xFFFFFFFF);
+static const Color createAccountStroke    = Color(0xFFD6DCE1);
+static const Color createAccountHint      = Color(0xFFF0F0F0);
+static const Color createAccountLabel     = Color(0xFF000000);
 }

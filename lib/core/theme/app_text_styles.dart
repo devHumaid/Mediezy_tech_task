@@ -85,4 +85,17 @@ class AppTextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
+
+  // Create Account specific
+static const TextStyle createAccountLabel = TextStyle(
+  fontSize: 14,
+  fontWeight: FontWeight.w500, // Inter Medium
+  color: AppColors.createAccountLabel,
+);
+
+static const TextStyle createAccountHint = TextStyle(
+  fontSize: 14,
+  fontWeight: FontWeight.w700, // Inter Bold
+  color: AppColors.createAccountHint,
+);
 }

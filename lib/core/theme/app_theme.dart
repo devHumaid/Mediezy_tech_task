@@ -1,83 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-class AppTheme {
-  AppTheme._();
+class AppTextStyles {
+  AppTextStyles._();
 
-  static ThemeData get lightTheme => ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: AppColors.background,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primaryTeal,
-          primary: AppColors.primaryTeal,
-          background: AppColors.background,
-        ),
-        fontFamily: 'Inter',
-        appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.background,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          iconTheme: IconThemeData(color: AppColors.textPrimary),
-          titleTextStyle: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: AppColors.white,
-          hintStyle: const TextStyle(
-            fontSize: 14,
-            color: AppColors.textFieldHint,
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.loginFieldBorder),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.loginFieldBorder),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide:
-                const BorderSide(color: AppColors.primaryTeal, width: 1.5),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.error),
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryTeal,
-            foregroundColor: AppColors.white,
-            minimumSize: const Size(double.infinity, 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            textStyle: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.textPrimary,
-            minimumSize: const Size(double.infinity, 50),
-            side: const BorderSide(color: AppColors.textPrimary, width: 1.2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            textStyle: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      );
+  static TextStyle heading1 = GoogleFonts.inter(
+    fontSize: 24, fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary, letterSpacing: -0.5,
+  );
+
+  static TextStyle heading2 = GoogleFonts.inter(
+    fontSize: 20, fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary, letterSpacing: -0.3,
+  );
+
+  static TextStyle heading3 = GoogleFonts.inter(
+    fontSize: 16, fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle bodyMedium = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w400,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle bodySmall = GoogleFonts.inter(
+    fontSize: 12, fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  static TextStyle label = GoogleFonts.inter(
+    fontSize: 13, fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle caption = GoogleFonts.inter(
+    fontSize: 11, fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  static TextStyle buttonPrimary = GoogleFonts.inter(
+    fontSize: 15, fontWeight: FontWeight.w600,
+    color: AppColors.white, letterSpacing: 0.3,
+  );
+
+  static TextStyle buttonOutlined = GoogleFonts.inter(
+    fontSize: 15, fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary, letterSpacing: 0.3,
+  );
+
+  static TextStyle fieldHint = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w400,
+    color: AppColors.textFieldHint,
+  );
+
+  static TextStyle fieldInput = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w400,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle poweredBy = GoogleFonts.inter(
+    fontSize: 12, fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  // Create Account specific
+  static TextStyle createAccountLabel = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w500,
+    color: AppColors.createAccountLabel,
+  );
+
+  static TextStyle createAccountHint = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w700,
+    color: AppColors.createAccountHint,
+  );
 }
