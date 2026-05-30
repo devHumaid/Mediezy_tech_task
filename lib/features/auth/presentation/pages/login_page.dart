@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../dashboard/presentation/pages/dashboard_page.dart';
@@ -24,25 +25,96 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
-    final auth = context.read<AuthProvider>();
-    await auth.login(
-      mobileNumber: _mobileController.text.trim(),
-      password:     _passwordController.text.trim(),
-    );
+Future<void> _handleLogin() async {
+  if (!_formKey.currentState!.validate()) return;
+  final auth = context.read<AuthProvider>();
+  await auth.login(
+    mobileNumber: _mobileController.text.trim(),
+    password:     _passwordController.text.trim(),
+  );
+  if (!mounted) return;
+
+  if (auth.isAuthenticated) {
+    // ── Ask location permission after successful login ──
+    await _requestLocationPermission();
     if (!mounted) return;
-    if (auth.isAuthenticated) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardPage()),
-      );
-    } else if (auth.errorMessage != null) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const DashboardPage()),
+    );
+  } else if (auth.errorMessage != null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(auth.errorMessage!), backgroundColor: AppColors.error),
+    );
+    auth.clearError();
+  }
+}
+
+Future<void> _requestLocationPermission() async {
+  // Check if location service is enabled
+  final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.errorMessage!), backgroundColor: AppColors.error),
+        const SnackBar(
+          content: Text('Please enable location services for attendance marking.'),
+          backgroundColor: Colors.orange,
+        ),
       );
-      auth.clearError();
+    }
+    return;
+  }
+
+  LocationPermission permission = await Geolocator.checkPermission();
+
+  // Already granted — nothing to do
+  if (permission == LocationPermission.always ||
+      permission == LocationPermission.whileInUse) return;
+
+  // Denied → request it
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Location permission denied. Attendance marking may not work.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
     }
   }
+
+  // Permanently denied → send to app settings
+  if (permission == LocationPermission.deniedForever) {
+    if (mounted) {
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Location Permission Required'),
+          content: const Text(
+            'Location permission is permanently denied. '
+            'Please enable it from app settings to use attendance marking.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Geolocator.openAppSettings();
+              },
+              child: const Text('Open Settings'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -213,18 +285,9 @@ class _ZyromateLogoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Image.asset(
-      'assets/images/zyromate_logo.png',
-      width: 200,
-      errorBuilder: (_, __, ___) => RichText(
-        text: const TextSpan(children: [
-          TextSpan(text: 'zyro',
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800,
-                  color: AppColors.primaryDark, letterSpacing: -1)),
-          TextSpan(text: 'mate',
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.w300,
-                  color: AppColors.primaryTeal, letterSpacing: -1)),
-        ]),
-      ),
+      'assets/images/logo.png',
+      width: 235,
+
     );
   }
 }

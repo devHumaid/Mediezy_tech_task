@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../leave/presentation/pages/apply_leave_page.dart';
+import '../../../route/presentation/pages/my_route_page.dart.dart';
+import '../../../route/presentation/providers/route_provider.dart';
 import '../providers/dashboard_provider.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -13,13 +16,13 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   @override
-  void initState() {
-    super.initState();
-    // Fetch current attendance status when dashboard loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DashboardProvider>().fetchAttendanceStatus();
-    });
-  }
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    context.read<DashboardProvider>().fetchAttendanceStatus();
+    context.read<RouteProvider>().fetchRouteList(); // ← add this
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -151,66 +154,80 @@ class _DashboardPageState extends State<DashboardPage> {
     return Row(
       children: [
         // Route tile – dark gradient
-        Expanded(
-          child: GestureDetector(
-            // onTap: () => Navigator.of(context).push(
-            //   MaterialPageRoute(builder: (_) => const RouteListPage()),
-            // ),
-            child: Container(
-              height: 90,
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 40, height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle, color: AppColors.white.withOpacity(0.15),
-                    ),
-                    child: const Icon(Icons.map_outlined, size: 20, color: AppColors.white),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('Route',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.white)),
-                ],
-              ),
+     Expanded(
+  child: GestureDetector(
+    onTap: () => Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const MyRoutePage()),
+    ),
+    child: Container(
+      height: 90,
+      decoration: BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.white.withOpacity(0.15),
             ),
+            child: const Icon(Icons.map_outlined,
+                size: 20, color: AppColors.white),
           ),
-        ),
+          const SizedBox(height: 8),
+          const Text('Route',
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white)),
+        ],
+      ),
+    ),
+  ),
+),
         const SizedBox(width: 14),
 
         // Apply Leave tile – white
-        Expanded(
-          child: GestureDetector(
-            // onTap: () => Navigator.of(context).push(
-            //   MaterialPageRoute(builder: (_) => const ApplyLeavePage()),
-            // ),
-            child: Container(
-              height: 90,
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 40, height: 40,
-                    decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.backgroundLight),
-                    child: const Icon(Icons.calendar_month_outlined, size: 20, color: AppColors.textPrimary),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('Apply Leave',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                ],
-              ),
-            ),
+   Expanded(
+  child: GestureDetector(
+    onTap: () => Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const ApplyLeavePage()),
+    ),
+    child: Container(
+      height: 90,
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 40, height: 40,
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.backgroundLight),
+            child: const Icon(Icons.calendar_month_outlined,
+                size: 20, color: AppColors.textPrimary),
           ),
-        ),
+          const SizedBox(height: 8),
+          const Text('Apply Leave',
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary)),
+        ],
+      ),
+    ),
+  ),
+),
       ],
     );
   }
@@ -222,58 +239,96 @@ class _DashboardPageState extends State<DashboardPage> {
       children: [
         const Text('Recent Activity',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-        GestureDetector(
-          // onTap: () => Navigator.of(context).push(
-          //   MaterialPageRoute(builder: (_) => const RouteListPage()),
-          // ),
-          child: const Row(
-            children: [
-              Text('View All', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-              SizedBox(width: 2),
-              Icon(Icons.chevron_right, size: 16, color: AppColors.textSecondary),
-            ],
-          ),
-        ),
+       GestureDetector(
+  onTap: () => Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => const MyRoutePage()),
+  ),
+  child: const Row(
+    children: [
+      Text('View All',
+          style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+      SizedBox(width: 2),
+      Icon(Icons.chevron_right,
+          size: 16, color: AppColors.textSecondary),
+    ],
+  ),
+),
       ],
     );
   }
 
-  Widget _buildActivityList() {
-    // TODO: Replace with real data from GET /attendance/route-list
-    return Column(
-      children: ['23 Aug 2026', '22 Aug 2026', '21 Aug 2026'].map((date) =>
-        Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(12)),
-          child: Row(
-            children: [
-              Container(
-                width: 38, height: 38,
-                decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.backgroundLight),
-                child: const Icon(Icons.person, size: 20, color: AppColors.textSecondary),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(date, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                  const SizedBox(height: 3),
-                  const Row(children: [
-                    Text('Marked in at 9:30', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                    SizedBox(width: 6),
-                    SizedBox(width: 1, height: 10, child: ColoredBox(color: AppColors.divider)),
-                    SizedBox(width: 6),
-                    Text('Marked out at 6:30', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                  ]),
-                ],
-              ),
-            ],
-          ),
+ Widget _buildActivityList() {
+  return Consumer<RouteProvider>(builder: (_, provider, __) {
+    if (provider.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primaryTeal),
+      );
+    }
+    if (provider.routes.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Text('No recent activity',
+              style: TextStyle(color: AppColors.textSecondary)),
         ),
-      ).toList(),
+      );
+    }
+    final recent = provider.routes.take(3).toList();
+    return Column(
+      children: recent.map((route) => Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(12)),
+        child: Row(
+          children: [
+            Container(
+              width: 38, height: 38,
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.backgroundLight),
+              child: const Icon(Icons.person,
+                  size: 20, color: AppColors.textSecondary),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(route.date ?? '',
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary)),
+                const SizedBox(height: 3),
+                Row(children: [
+                  Text(
+                    'Marked in at ${route.markInTime ?? "--"}',
+                    style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondary),
+                  ),
+                  if (route.markOutTime != null) ...[
+                    const SizedBox(width: 6),
+                    const SizedBox(width: 1, height: 10,
+                        child: ColoredBox(color: AppColors.divider)),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Marked out at ${route.markOutTime}',
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary),
+                    ),
+                  ],
+                ]),
+              ],
+            ),
+          ],
+        ),
+      )).toList(),
     );
-  }
+  });
+}
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

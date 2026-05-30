@@ -1,3 +1,4 @@
+import 'package:mediezy_tech_task/core/constants/app_constants.dart';
 import 'package:mediezy_tech_task/features/dashboard/data/datasource/attendance_model.dart' show AttendanceModel;
 
 import '../../../../core/network/api_client.dart';
@@ -19,18 +20,18 @@ class DashboardRemoteDataSource {
   /// POST /attendance/mark
   /// [attendanceStatus] → 'mark_in' or 'mark_out'
   /// [latitude] & [longitude] → from device GPS
-  Future<Map<String, dynamic>> markAttendance({
-    required String attendanceStatus,
-    required double latitude,
-    required double longitude,
-  }) async {
-    return await _api.post(
-      ApiConstants.attendanceMark,
-      data: {
-        'attendance_status': attendanceStatus,
-        'latitude':          latitude,
-        'longitude':         longitude,
-      },
-    );
-  }
+Future<Map<String, dynamic>> markAttendance({
+  required String attendanceStatus,
+  required double latitude,
+  required double longitude,
+}) async {
+  return await _api.post(
+    ApiConstants.attendanceMark,
+    data: {
+      'attendance_status': attendanceStatus == AppConstants.attendanceIn ? 1 : 2,
+      'latitude':          latitude,
+      'longitude':         longitude,
+    },
+  );
+}
 }
