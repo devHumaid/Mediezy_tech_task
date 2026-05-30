@@ -70,9 +70,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           onTap: () => Navigator.of(context).pop(),
           child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
         ),
-        title: const Text('Create Account',
-            style: TextStyle(fontFamily: 'Inter', fontSize: 18,
-                fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+     title: Text('Create Account', style: AppTextStyles.heading3),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -162,10 +160,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
             keyboardType: keyboardType,
             maxLines: maxLines,
             validator: validator,
-            style: const TextStyle(
-              fontFamily: 'Inter', fontSize: 14,
-              fontWeight: FontWeight.w400, color: AppColors.textPrimary,
-            ),
+          style: AppTextStyles.fieldInput,
+
             decoration: _inputDecoration(hint).copyWith(
               suffixIcon: suffixIcon != null
                   ? GestureDetector(
@@ -190,10 +186,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           controller: _passwordCtrl,
           obscureText: _obscurePassword,
           validator: (v) => v!.isEmpty ? 'Required' : (v.length < 6 ? 'Min 6 chars' : null),
-          style: const TextStyle(
-            fontFamily: 'Inter', fontSize: 14,
-            fontWeight: FontWeight.w400, color: AppColors.textPrimary,
-          ),
+         style: AppTextStyles.fieldInput,
+
           decoration: _inputDecoration('Enter Password').copyWith(
             suffixIcon: GestureDetector(
               onTap: () => setState(() => _obscurePassword = !_obscurePassword),

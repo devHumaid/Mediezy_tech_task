@@ -1,101 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppTextStyles {
   AppTextStyles._();
 
-  //  Display 
-  static const TextStyle heading1 = TextStyle(
-    fontSize: 24,
-    fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
-    letterSpacing: -0.5,
+  static TextStyle heading1 = GoogleFonts.inter(
+    fontSize: 24, fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary, letterSpacing: -0.5,
   );
 
-  static const TextStyle heading2 = TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
-    letterSpacing: -0.3,
+  static TextStyle heading2 = GoogleFonts.inter(
+    fontSize: 20, fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary, letterSpacing: -0.3,
   );
 
-  static const TextStyle heading3 = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
+  static TextStyle heading3 = GoogleFonts.inter(
+    fontSize: 16, fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
   );
 
-  //  Body 
-  static const TextStyle bodyMedium = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
+  static TextStyle bodyMedium = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
-  static const TextStyle bodySmall = TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.w400,
+  static TextStyle bodySmall = GoogleFonts.inter(
+    fontSize: 12, fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
 
-  //  Label / Caption 
-  static const TextStyle label = TextStyle(
-    fontSize: 13,
-    fontWeight: FontWeight.w500,
+  static TextStyle label = GoogleFonts.inter(
+    fontSize: 13, fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
   );
 
-  static const TextStyle caption = TextStyle(
-    fontSize: 11,
-    fontWeight: FontWeight.w400,
+  static TextStyle caption = GoogleFonts.inter(
+    fontSize: 11, fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
 
-  //  Button 
-  static const TextStyle buttonPrimary = TextStyle(
-    fontSize: 15,
-    fontWeight: FontWeight.w600,
-    color: AppColors.white,
-    letterSpacing: 0.3,
+  static TextStyle buttonPrimary = GoogleFonts.inter(
+    fontSize: 15, fontWeight: FontWeight.w600,
+    color: AppColors.white, letterSpacing: 0.3,
   );
 
-  static const TextStyle buttonOutlined = TextStyle(
-    fontSize: 15,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-    letterSpacing: 0.3,
+  static TextStyle buttonOutlined = GoogleFonts.inter(
+    fontSize: 15, fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary, letterSpacing: 0.3,
   );
 
-  //  Field 
-  static const TextStyle fieldHint = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
+  static TextStyle fieldHint = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w400,
     color: AppColors.textFieldHint,
   );
 
-  static const TextStyle fieldInput = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
+  static TextStyle fieldInput = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
-  //  powered by 
-  static const TextStyle poweredBy = TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.w400,
+  static TextStyle poweredBy = GoogleFonts.inter(
+    fontSize: 12, fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
 
   // Create Account specific
-static const TextStyle createAccountLabel = TextStyle(
-  fontSize: 14,
-  fontWeight: FontWeight.w500, // Inter Medium
-  color: AppColors.createAccountLabel,
-);
+  static TextStyle createAccountLabel = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w500,
+    color: AppColors.createAccountLabel,
+  );
 
-static const TextStyle createAccountHint = TextStyle(
-  fontSize: 14,
-  fontWeight: FontWeight.w700, // Inter Bold
-  color: AppColors.createAccountHint,
-);
+  static TextStyle createAccountHint = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w700,
+    color: AppColors.createAccountHint,
+  );
 }
