@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mediezy_tech_task/features/auth/presentation/pages/splash_screen.dart';
+import 'package:mediezy_tech_task/features/dashboard/presentation/pages/splash_screen.dart';
+import 'package:mediezy_tech_task/features/dashboard/presentation/providers/dashboard_provider.dart' show DashboardProvider;
 import 'package:provider/provider.dart';
 import 'core/network/api_client.dart';
 import 'core/theme/app_theme.dart';
@@ -22,6 +23,7 @@ class ZyromateApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),
 
 
       ],

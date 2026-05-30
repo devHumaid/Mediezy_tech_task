@@ -3,9 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/presentation/pages/login_page.dart';
-import '../../../attendance/presentation/providers/attendance_provider.dart';
-import '../../../leave/presentation/pages/apply_leave_page.dart';
-import '../../../route/presentation/pages/route_list_page.dart';
+import '../providers/dashboard_provider.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -17,9 +15,9 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch attendance status when dashboard loads
+    // Fetch current attendance status when dashboard loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AttendanceProvider>().fetchStatus();
+      context.read<DashboardProvider>().fetchAttendanceStatus();
     });
   }
 
@@ -36,23 +34,14 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Top bar ──────────────────────────────────────────────
               _buildTopBar(context, auth),
               const SizedBox(height: 20),
-
-              // ── Profile card ─────────────────────────────────────────
               _buildProfileCard(user),
               const SizedBox(height: 16),
-
-              // ── Mark In / Out / Completed Banner ─────────────────────
-              _buildAttendanceBanner(),
+              _buildAttendanceBanner(context),  // ← 3-state banner
               const SizedBox(height: 16),
-
-              // ── Quick action tiles ────────────────────────────────────
               _buildQuickActions(context),
               const SizedBox(height: 24),
-
-              // ── Recent Activity ───────────────────────────────────────
               _buildRecentActivityHeader(context),
               const SizedBox(height: 12),
               _buildActivityList(),
@@ -93,12 +82,10 @@ class _DashboardPageState extends State<DashboardPage> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 28),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.white, borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
-          // Avatar circle
           Container(
             width: 72, height: 72,
             decoration: BoxDecoration(
@@ -133,27 +120,29 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // ── Attendance Banner (3 states) ─────────────────────────────────────────
-  Widget _buildAttendanceBanner() {
-    return Consumer<AttendanceProvider>(builder: (_, provider, __) {
-      // Show snackbar feedback
+  // ── Attendance Banner ─────────────────────────────────────────────────────
+  Widget _buildAttendanceBanner(BuildContext context) {
+    return Consumer<DashboardProvider>(builder: (_, provider, __) {
+      // Show snackbar feedback after marking
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (provider.successMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(provider.successMessage!),
             backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
           ));
           provider.clearMessages();
         } else if (provider.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(provider.errorMessage!),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
           ));
           provider.clearMessages();
         }
       });
 
-      return _AttendanceBannerWidget(provider: provider);
+      return _AttendanceBanner(provider: provider);
     });
   }
 
@@ -161,12 +150,12 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildQuickActions(BuildContext context) {
     return Row(
       children: [
-        // Route – dark gradient tile
+        // Route tile – dark gradient
         Expanded(
           child: GestureDetector(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const RouteListPage()),
-            ),
+            // onTap: () => Navigator.of(context).push(
+            //   MaterialPageRoute(builder: (_) => const RouteListPage()),
+            // ),
             child: Container(
               height: 90,
               decoration: BoxDecoration(
@@ -179,8 +168,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   Container(
                     width: 40, height: 40,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.white.withOpacity(0.15),
+                      shape: BoxShape.circle, color: AppColors.white.withOpacity(0.15),
                     ),
                     child: const Icon(Icons.map_outlined, size: 20, color: AppColors.white),
                   ),
@@ -194,20 +182,18 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         const SizedBox(width: 14),
 
-        // Apply Leave – white tile
+        // Apply Leave tile – white
         Expanded(
           child: GestureDetector(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ApplyLeavePage()),
-            ),
+            // onTap: () => Navigator.of(context).push(
+            //   MaterialPageRoute(builder: (_) => const ApplyLeavePage()),
+            // ),
             child: Container(
               height: 90,
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2)),
-                ],
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -229,7 +215,7 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // ── Recent Activity Header ────────────────────────────────────────────────
+  // ── Recent Activity ───────────────────────────────────────────────────────
   Widget _buildRecentActivityHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -237,9 +223,9 @@ class _DashboardPageState extends State<DashboardPage> {
         const Text('Recent Activity',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
         GestureDetector(
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const RouteListPage()),
-          ),
+          // onTap: () => Navigator.of(context).push(
+          //   MaterialPageRoute(builder: (_) => const RouteListPage()),
+          // ),
           child: const Row(
             children: [
               Text('View All', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
@@ -252,133 +238,144 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // ── Recent Activity List ──────────────────────────────────────────────────
   Widget _buildActivityList() {
-    // TODO: Replace with real API data from attendance/route-list
-    final items = ['23 Aug 2026', '22 Aug 2026', '21 Aug 2026'];
+    // TODO: Replace with real data from GET /attendance/route-list
     return Column(
-      children: items.map((date) => Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.white, borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 38, height: 38,
-              decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.backgroundLight),
-              child: const Icon(Icons.person, size: 20, color: AppColors.textSecondary),
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(date,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                const SizedBox(height: 3),
-                const Row(
-                  children: [
+      children: ['23 Aug 2026', '22 Aug 2026', '21 Aug 2026'].map((date) =>
+        Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(12)),
+          child: Row(
+            children: [
+              Container(
+                width: 38, height: 38,
+                decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.backgroundLight),
+                child: const Icon(Icons.person, size: 20, color: AppColors.textSecondary),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(date, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                  const SizedBox(height: 3),
+                  const Row(children: [
                     Text('Marked in at 9:30', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                     SizedBox(width: 6),
                     SizedBox(width: 1, height: 10, child: ColoredBox(color: AppColors.divider)),
                     SizedBox(width: 6),
                     Text('Marked out at 6:30', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                  ]),
+                ],
+              ),
+            ],
+          ),
         ),
-      )).toList(),
+      ).toList(),
     );
   }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Attendance Banner Widget – handles all 3 states
+// Attendance Banner – 3 states (separate widget for clarity)
 // ═══════════════════════════════════════════════════════════════════════════
-class _AttendanceBannerWidget extends StatelessWidget {
-  final AttendanceProvider provider;
-  const _AttendanceBannerWidget({required this.provider});
+class _AttendanceBanner extends StatelessWidget {
+  final DashboardProvider provider;
+  const _AttendanceBanner({required this.provider});
 
   @override
   Widget build(BuildContext context) {
-    // Determine which state to show
-    final _BannerState state = _resolveBannerState(provider);
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: state == _BannerState.completed ? 18 : 14,
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: Container(
+        key: ValueKey(provider.bannerState),
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: provider.bannerState == BannerState.completed ? 20 : 14,
+        ),
+        decoration: BoxDecoration(
+          gradient: AppColors.primaryGradient,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: _buildBannerContent(context),
       ),
-      decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: state == _BannerState.completed
-          ? _buildCompletedState(provider)
-          : _buildActiveState(context, provider, state),
     );
   }
 
-  // ── State 3: Day Completed (no button, centered text) ────────────────────
-  Widget _buildCompletedState(AttendanceProvider provider) {
-    final att = provider.attendance;
-    return Column(
-      children: [
-        const Text(
-          'Your Day Completed',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.white),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Started at ${att?.checkInTime ?? "9:29"} Ended at ${att?.checkOutTime ?? "5:31"}',
-          style: const TextStyle(fontSize: 12, color: Colors.white70),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
+  Widget _buildBannerContent(BuildContext context) {
+    switch (provider.bannerState) {
+
+      // ── State 1: Not started → Mark In ────────────────────────────
+case BannerState.notStarted:
+  return _buildWithButton(
+    title:       'Start Your Day!',
+    subtitle:    'Your shift starts at ${provider.attendance?.shiftStartTime ?? "09:00"}',  // ← CHANGE THIS
+    buttonLabel: 'Mark In',
+    buttonIcon:  Icons.fingerprint,
+    onTap: () => provider.markAttendance(markIn: true),
+  );
+
+      // ── State 2: Working → Mark Out ───────────────────────────────
+      case BannerState.working:
+        return _buildWithButton(
+          title:    'Your work started',
+          subtitle: 'Checked In at ${provider.attendance?.checkInTime ?? "9:29"}',
+          buttonLabel: 'Mark Out',
+          buttonIcon:  Icons.logout_outlined,
+          onTap: () => provider.markAttendance(markIn: false),
+        );
+
+      // ── State 3: Day completed → no button ───────────────────────
+      case BannerState.completed:
+        return Column(
+          children: [
+            const Text(
+              'Your Day Completed',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.white),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Started at ${provider.attendance?.checkInTime ?? "9:29"} '
+              'Ended at ${provider.attendance?.checkOutTime ?? "5:31"}',
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        );
+    }
   }
 
-  // ── State 1 & 2: Mark In / Mark Out (with button) ────────────────────────
-  Widget _buildActiveState(
-      BuildContext context, AttendanceProvider provider, _BannerState state) {
-    final isMarkIn = state == _BannerState.notStarted;
+  /// Shared layout for State 1 & 2 (text left + white pill button right)
+  Widget _buildWithButton({
+    required String title,
+    required String subtitle,
+    required String buttonLabel,
+    required IconData buttonIcon,
+    required VoidCallback onTap,
+  }) {
     final isLoading = provider.isLoading;
-    final att = provider.attendance;
-
     return Row(
       children: [
-        // Left: text block
+        // Left text
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                isMarkIn ? 'Start Your Day!' : 'Your work started',
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.white),
-              ),
+              Text(title,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.white)),
               const SizedBox(height: 3),
-              Text(
-                isMarkIn
-                    ? 'Your shift start at 9:30'
-                    : 'Checked In at ${att?.checkInTime ?? "9:29"}',
-                style: const TextStyle(fontSize: 12, color: Colors.white70),
-              ),
+              Text(subtitle,
+                  style: const TextStyle(fontSize: 12, color: Colors.white70)),
             ],
           ),
         ),
         const SizedBox(width: 12),
 
-        // Right: Mark In / Mark Out pill button
+        // Right white pill button
         GestureDetector(
-          onTap: isLoading
-              ? null
-              : () => provider.markAttendance(markIn: isMarkIn),
+          onTap: isLoading ? null : onTap,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
@@ -388,26 +385,17 @@ class _AttendanceBannerWidget extends StatelessWidget {
             child: isLoading
                 ? const SizedBox(
                     width: 18, height: 18,
-                    child: CircularProgressIndicator(
-                        color: AppColors.primaryTeal, strokeWidth: 2),
+                    child: CircularProgressIndicator(color: AppColors.primaryTeal, strokeWidth: 2),
                   )
                 : Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        isMarkIn ? Icons.fingerprint : Icons.logout_outlined,
-                        size: 16,
-                        color: AppColors.primaryTeal,
-                      ),
+                      Icon(buttonIcon, size: 16, color: AppColors.primaryTeal),
                       const SizedBox(width: 6),
-                      Text(
-                        isMarkIn ? 'Mark In' : 'Mark Out',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryTeal,
-                        ),
-                      ),
+                      Text(buttonLabel,
+                          style: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primaryTeal,
+                          )),
                     ],
                   ),
           ),
@@ -415,27 +403,4 @@ class _AttendanceBannerWidget extends StatelessWidget {
       ],
     );
   }
-
-  /// Resolve which of the 3 banner states to show
-  _BannerState _resolveBannerState(AttendanceProvider provider) {
-    final att = provider.attendance;
-    if (att == null) return _BannerState.notStarted;
-
-    // Both check-in AND check-out exist → day completed
-    if (att.checkInTime != null && att.checkOutTime != null) {
-      return _BannerState.completed;
-    }
-    // Only check-in exists → currently working
-    if (att.isMarkedIn) return _BannerState.working;
-
-    // Default → not started yet
-    return _BannerState.notStarted;
-  }
-}
-
-/// The 3 possible states of the attendance banner
-enum _BannerState {
-  notStarted, // State 1: Show "Start Your Day!" + Mark In button
-  working,    // State 2: Show "Your work started" + Mark Out button
-  completed,  // State 3: Show "Your Day Completed" - no button
 }
