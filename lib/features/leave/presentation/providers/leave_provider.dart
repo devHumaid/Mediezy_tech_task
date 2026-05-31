@@ -12,7 +12,7 @@ class LeaveProvider extends ChangeNotifier {
   List<LeaveModel> _leaves       = [];
   String?        _errorMessage;
   String?        _successMessage;
-  String         _selectedFilter = 'all';  // all|pending|approved|rejected
+  String         _selectedFilter = 'all'; 
   String         _selectedMonth  = DateTime.now().month.toString();
 
   LeaveStatus      get status         => _status;

@@ -1,38 +1,30 @@
-/// All API endpoints for Zyromate app
-/// Base URL: https://test.zyromate.com/api/
+
 class ApiConstants {
   ApiConstants._();
 
   static const String baseUrl = 'https://test.zyromate.com/api';
 
-  // ── Auth ──────────────────────────────────────────────────────────────
-  /// POST  | mobile_number, password
+  //  auth
   static const String userLogin = '/user-login';
-
-  /// POST  | first_name, last_name, email, password,
-  ///         address, dob, mobile_number, doj, location
+//register
   static const String register = '/register';
 
-  // ── Attendance ────────────────────────────────────────────────────────
-  /// GET   | – (token in header)
+  //  Attendance
   static const String attendanceStatus = '/attendance/status';
 
-  /// POST  | attendance_status, latitude, longitude
+  // mark attendance
   static const String attendanceMark = '/attendance/mark';
 
-  /// GET   | – (token in header)
+  //= route list
   static const String routeList = '/attendance/route-list';
 
-  // ── Leave ─────────────────────────────────────────────────────────────
-  /// POST  | leave_mode (half_day | full_day), leave_type,
-  ///         start_date, end_date, reason, user_id
+  // apply leave 
   static const String applyLeave = '/apply-leave';
 
-  /// POST  | employee_id, leave_type (all | pending | approved | rejected),
-  ///         month
+  /// leave list 
   static const String leaves = '/leaves';
 
-  // ── Timeouts ──────────────────────────────────────────────────────────
+  //  timeouts 
   static const int connectTimeout = 30000;
   static const int receiveTimeout = 30000;
 }

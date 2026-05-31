@@ -7,7 +7,7 @@ class AttendanceModel {
   final double? latitude;
   final double? longitude;
   final String? userId;
-  final String? shiftStartTime;  // ← ADD THIS
+  final String? shiftStartTime;  
 
   AttendanceModel({
     this.id,
@@ -18,7 +18,7 @@ class AttendanceModel {
     this.latitude,
     this.longitude,
     this.userId,
-    this.shiftStartTime,  // ← ADD THIS
+    this.shiftStartTime,  
   });
 
   bool get isNotStarted =>

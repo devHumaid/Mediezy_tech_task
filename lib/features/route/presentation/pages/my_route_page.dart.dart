@@ -6,7 +6,6 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/activitycard.dart';
 import '../../../../shared/widgets/custom_appbar.dart';
 import '../providers/route_provider.dart';
-import '../../data/models/route_model.dart';
 
 class MyRoutePage extends StatefulWidget {
   const MyRoutePage({super.key});
@@ -40,7 +39,6 @@ class _MyRoutePageState extends State<MyRoutePage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Page title ─────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(30, 0, 20, 16),
               child: Text(
@@ -53,11 +51,9 @@ class _MyRoutePageState extends State<MyRoutePage> {
               ),
             ),
 
-            // ── Search Bar ─────────────────────────────────────────
             _buildSearchBar(),
             const SizedBox(height: 12),
 
-            // ── List ───────────────────────────────────────────────
             Expanded(child: _buildList(provider)),
           ],
         );
@@ -65,7 +61,6 @@ class _MyRoutePageState extends State<MyRoutePage> {
     );
   }
 
-  // ── Search Bar ───────────────────────────────────────────────────────────
  Widget _buildSearchBar() {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -86,7 +81,6 @@ class _MyRoutePageState extends State<MyRoutePage> {
     ),
   );
 }
-  // ── List ─────────────────────────────────────────────────────────────────
   Widget _buildList(RouteProvider provider) {
     if (provider.isLoading) {
       return const Center(

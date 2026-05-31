@@ -105,7 +105,6 @@ class _ApplyLeavePageState extends State<ApplyLeavePage> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
           children: [
-            // ── Page title ──────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.only(left: 10),
               child: Text(
@@ -119,11 +118,9 @@ class _ApplyLeavePageState extends State<ApplyLeavePage> {
             ),
             const SizedBox(height: 16),
 
-            // ── Full Day / Half Day Toggle ──────────────────────────
             _buildModeToggle(),
             const SizedBox(height: 20),
 
-            // ── White card ─────────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -165,7 +162,6 @@ class _ApplyLeavePageState extends State<ApplyLeavePage> {
             ),
             const SizedBox(height: 32),
 
-            // ── Apply Button ────────────────────────────────────────
            Column(children: [
              Consumer<LeaveProvider>(builder: (_, provider, __) {
               return PrimaryButton(
@@ -178,7 +174,6 @@ class _ApplyLeavePageState extends State<ApplyLeavePage> {
             }),
             const SizedBox(height: 12),
 
-            // ── Leave List Button ───────────────────────────────────
             AppOutlineButton(
               label: 'Leave List',
               height: 40,

@@ -12,19 +12,17 @@ class RouteDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ── coordinates ──────────────────────────────────────────────
     final hasLocation = route.latitude != null && route.longitude != null;
     final markInLatLng = hasLocation
         ? LatLng(route.latitude!, route.longitude!)
         : const LatLng(19.0013, 73.1369); // fallback
 
-    // mark_out_location — add to RouteModel if needed, fallback for now
     final markOutLatLng = LatLng(
       (route.latitude ?? 19.0013) + 0.002,
       (route.longitude ?? 73.1369) + 0.002,
     );
 
-    // ── distance ─────────────────────────────────────────────────
+    // ] distance 
     final distance = _calculateDistance(markInLatLng, markOutLatLng);
 
     return Scaffold(
@@ -33,7 +31,7 @@ class RouteDetailPage extends StatelessWidget {
       appBar: const CustomAppBar(title: "My Route",),
       body: Stack(
         children: [
-          // ── Full screen map ───────────────────────────────────
+          //  Full screen map 
           FlutterMap(
             options: MapOptions(
               initialCenter: markInLatLng,
@@ -44,7 +42,6 @@ class RouteDetailPage extends StatelessWidget {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.mediezy.zyromate',
               ),
-              // ── Polyline between mark in and mark out ──────────
               PolylineLayer(
                 polylines: [
                   Polyline(
@@ -54,7 +51,6 @@ class RouteDetailPage extends StatelessWidget {
                   ),
                 ],
               ),
-              // ── Markers ────────────────────────────────────────
               MarkerLayer(
                 markers: [
                   // Mark In marker
@@ -90,8 +86,7 @@ class RouteDetailPage extends StatelessWidget {
             ],
           ),
 
-          // ── Bottom card ───────────────────────────────────────
-        // ── Bottom card ───────────────────────────────────────
+   
 Positioned(
   bottom: 0, left: 0, right: 0,
   child: Container(
@@ -104,7 +99,6 @@ Positioned(
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // ── Left: user info ───────────────────────────
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +130,6 @@ Positioned(
           ),
         ),
 
-        // ── Center: distance ──────────────────────────
         Text(
           '${distance.toStringAsFixed(1)} Km',
           style: AppTextStyles.heading2.copyWith(
@@ -147,7 +140,6 @@ Positioned(
         ),
         const SizedBox(width: 16),
 
-        // ── Right: gradient refresh button ───────────
         Container(
           width: 46, height: 46,
           decoration: BoxDecoration(

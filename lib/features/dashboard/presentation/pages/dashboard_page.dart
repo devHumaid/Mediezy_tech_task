@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/activitycard.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../auth/presentation/pages/login_page.dart';
 import '../../../leave/presentation/pages/apply_leave_page.dart';
 import '../../../route/presentation/pages/my_route_page.dart.dart';
 import '../../../route/presentation/pages/route details_page..dart';
@@ -60,33 +58,11 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // ── Top Bar ──────────────────────────────────────────────────────────────
-  Widget _buildTopBar(BuildContext context, AuthProvider auth) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text('Dashboard', style: AppTextStyles.heading3),
-        GestureDetector(
-          onTap: () async {
-            await auth.logout();
-            if (context.mounted) {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-                (_) => false,
-              );
-            }
-          },
-          child: const Icon(Icons.logout_outlined, color: AppColors.textSecondary, size: 22),
-        ),
-      ],
-    );
-  }
 
-  // ── Profile Card ─────────────────────────────────────────────────────────
+
   Widget _buildProfileCard(user) {
     return Column(
       children: [
-        // ── Profile image ──
         CircleAvatar(
           radius: 36,
           backgroundColor: AppColors.backgroundLight,
@@ -125,7 +101,6 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // ── Attendance Banner ─────────────────────────────────────────────────────
   Widget _buildAttendanceBanner(BuildContext context) {
     return Consumer<DashboardProvider>(builder: (_, provider, __) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -149,7 +124,6 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
-  // ── Quick Actions ─────────────────────────────────────────────────────────
 Widget _buildQuickActions(BuildContext context) {
   return Row(
     children: [
@@ -241,7 +215,6 @@ Widget _buildQuickActions(BuildContext context) {
     ],
   );
 }
-  // ── Recent Activity ───────────────────────────────────────────────────────
   Widget _buildRecentActivityHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -288,7 +261,7 @@ Widget _buildActivityList() {
           ),
         ),
         child: ActivityCard(
-          date: route.date ?? '',   // API already returns "31 May 2026"
+          date: route.date ?? '',   
           markInTime: route.markInTime,
           markOutTime: route.markOutTime,
         ),
@@ -297,9 +270,7 @@ Widget _buildActivityList() {
   });
 }}
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Attendance Banner
-// ═══════════════════════════════════════════════════════════════════════════
+// banner
 class _AttendanceBanner extends StatelessWidget {
   final DashboardProvider provider;
   const _AttendanceBanner({required this.provider});

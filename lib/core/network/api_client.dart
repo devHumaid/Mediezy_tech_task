@@ -3,8 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/api_constants.dart';
 import '../constants/app_constants.dart';
 
-/// Central HTTP client using Dio.
-/// Automatically attaches Bearer token from SharedPreferences on every request.
 class ApiClient {
   ApiClient._();
   static final ApiClient instance = ApiClient._();
@@ -12,7 +10,6 @@ class ApiClient {
   late final Dio _dio;
   bool _initialized = false;
 
-  /// Call once in main() before runApp
   Future<void> init() async {
     if (_initialized) return;
     _dio = Dio(
@@ -29,7 +26,6 @@ class ApiClient {
       ),
     );
 
-    // ── Auth Interceptor ─────────────────────────────────────────────
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -41,13 +37,11 @@ class ApiClient {
           return handler.next(options);
         },
         onError: (error, handler) {
-          // 401 → token expired; caller should handle logout
           return handler.next(error);
         },
       ),
     );
 
-    // ── Logger (debug only) ──────────────────────────────────────────
     _dio.interceptors.add(LogInterceptor(
       requestBody: true,
       responseBody: true,
@@ -57,7 +51,7 @@ class ApiClient {
     _initialized = true;
   }
 
-  // ── GET ──────────────────────────────────────────────────────────────
+// methode get
   Future<Map<String, dynamic>> get(
     String endpoint, {
     Map<String, dynamic>? queryParams,
@@ -72,9 +66,9 @@ class ApiClient {
       throw _handleDioError(e);
     }
   }
+  // methode post
 
-  // ── POST ─────────────────────────────────────────────────────────────
-  Future<Map<String, dynamic>> post(
+   Future<Map<String, dynamic>> post(
     String endpoint, {
     Map<String, dynamic>? data,
   }) async {
@@ -86,7 +80,7 @@ class ApiClient {
     }
   }
 
-  // ── Response Handler ─────────────────────────────────────────────────
+  //reaponse handler
   Map<String, dynamic> _handleResponse(Response response) {
     if (response.statusCode != null &&
         response.statusCode! >= 200 &&
@@ -99,7 +93,7 @@ class ApiClient {
     throw Exception('Unexpected status: ${response.statusCode}');
   }
 
-  // ── Error Handler ─────────────────────────────────────────────────────
+  // error
   Exception _handleDioError(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:

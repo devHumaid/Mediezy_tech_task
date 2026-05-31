@@ -33,7 +33,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     }
     super.dispose();
   }
-
+// save user 
   Future<void> _handleSave() async {
     if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
@@ -70,7 +70,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
           children: [
-            // ── White card container ──
             Container(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
               decoration: BoxDecoration(
@@ -102,13 +101,12 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       suffixIcon: Icons.calendar_today_outlined,
                       onSuffixTap: () => _pickDate(_dojCtrl),
                       validator: (v) => v!.isEmpty ? 'Required' : null),
-                  // Password field
                   _passwordField(),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            // ── Save button (reusable widget) ──
+            //  Save button 
             Consumer<AuthProvider>(builder: (_, auth, __) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -193,7 +191,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
   InputDecoration _inputDecoration(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: AppTextStyles.createAccountHint, // F0F0F0, Bold, 14
+        hintStyle: AppTextStyles.createAccountHint, 
         filled: true,
         fillColor: AppColors.createAccountContainer,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

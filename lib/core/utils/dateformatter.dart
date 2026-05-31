@@ -1,4 +1,3 @@
-/// Date formatting helpers used across the app
 class DateFormatter {
   DateFormatter._();
 
@@ -14,7 +13,7 @@ class DateFormatter {
       '${date.month.toString().padLeft(2, '0')}-'
       '${date.day.toString().padLeft(2, '0')}';
 
-  /// Month name from month number (1–12)
+
   static String monthName(int month) {
     const months = [
       '', 'January', 'February', 'March', 'April',

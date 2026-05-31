@@ -1,8 +1,7 @@
-/// Pure domain entity for attendance
-/// Maps to GET /attendance/status response
+
 class AttendanceEntity {
   final String? id;
-  final String? attendanceStatus; // 'mark_in' | 'mark_out'
+  final String? attendanceStatus;
   final String? checkInTime;
   final String? checkOutTime;
   final String? date;

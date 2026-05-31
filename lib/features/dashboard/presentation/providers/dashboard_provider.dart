@@ -4,11 +4,11 @@ import '../../../../core/constants/app_constants.dart';
 import '../../data/datasource/attendance_model.dart';
 import '../../data/datasource/dashboard_remote_datasource.dart';
 
-/// Possible states for the dashboard attendance banner
+///  states for the dashboard attendance banner
 enum BannerState {
-  notStarted, // State 1 → "Start Your Day!" + Mark In button
-  working,    // State 2 → "Your work started" + Mark Out button
-  completed,  // State 3 → "Your Day Completed" – no button
+  notStarted, 
+  working,    
+  completed,  
 }
 
 /// Loading states for the provider
@@ -43,7 +43,6 @@ BannerState get bannerState {
   return BannerState.notStarted;
 }
 
-  // ── Fetch current attendance status ───────────────────────────────────
   /// Called on dashboard init to know the current state
   Future<void> fetchAttendanceStatus() async {
     _status = DashboardStatus.loadingStatus;
@@ -54,15 +53,13 @@ BannerState get bannerState {
       _attendance = await _dataSource.getAttendanceStatus();
       _status = DashboardStatus.loaded;
     } catch (e) {
-      // Silently fail – dashboard still loads, banner shows State 1
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
       _status = DashboardStatus.loaded; // don't block the UI
     }
     notifyListeners();
   }
 
-  // ── Mark In / Mark Out ────────────────────────────────────────────────
-  /// [markIn] true → POST mark_in, false → POST mark_out
+  //  Mark In / Mark Out 
   Future<void> markAttendance({required bool markIn}) async {
     _status = DashboardStatus.marking;
     _errorMessage   = null;
@@ -96,7 +93,7 @@ BannerState get bannerState {
     }
   }
 
-  // ── GPS Helper ────────────────────────────────────────────────────────
+  //  GPS Helper 
   Future<Position> _getGPSLocation() async {
     // Check if location services are enabled
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -119,7 +116,7 @@ BannerState get bannerState {
     );
   }
 
-  // ── Clear feedback messages ───────────────────────────────────────────
+  //  Clear feedback messages 
   void clearMessages() {
     _errorMessage   = null;
     _successMessage = null;

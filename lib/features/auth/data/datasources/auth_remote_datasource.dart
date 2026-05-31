@@ -7,8 +7,7 @@ import '../models/user_model.dart';
 class AuthRemoteDataSource {
   final ApiClient _api = ApiClient.instance;
 
-  /// POST /user-login
-  /// Returns UserModel with token on success
+
   Future<UserModel> login({
     required String mobileNumber,
     required String password,

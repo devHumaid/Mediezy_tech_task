@@ -1,5 +1,4 @@
-/// Base failure class used in the domain layer
-/// Keeps the domain layer free of exception types
+
 abstract class Failure {
   final String message;
   const Failure(this.message);

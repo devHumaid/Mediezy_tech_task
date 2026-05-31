@@ -19,7 +19,6 @@ class _LoginPageState extends State<LoginPage> {
   final _mobileController   = TextEditingController();
   final _passwordController = TextEditingController();
   bool  _obscurePassword    = true;
-// Add this bool in your state
 bool get _isFormFilled =>
     _mobileController.text.trim().isNotEmpty &&
     _passwordController.text.trim().isNotEmpty;
@@ -47,7 +46,7 @@ Future<void> _handleLogin() async {
   if (!mounted) return;
 
   if (auth.isAuthenticated) {
-    // ── Ask location permission after successful login ──
+    //   location permission after successful login 
     await _requestLocationPermission();
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
@@ -62,7 +61,7 @@ Future<void> _handleLogin() async {
 }
 
 Future<void> _requestLocationPermission() async {
-  // Check if location service is enabled
+  // check if location service is enabled
   final serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
     if (mounted) {
@@ -259,7 +258,6 @@ Widget _buildLoginButton() {
   });
 }
 
-// replace _buildCreateAccountButton()
 Widget _buildCreateAccountButton() {
   return AppOutlineButton(
     label: 'Create Account',

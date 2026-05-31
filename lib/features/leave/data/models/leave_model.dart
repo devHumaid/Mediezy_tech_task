@@ -1,11 +1,11 @@
 class LeaveModel {
   final String? id;
-  final String? leaveMode;    // 'full_day' | 'half_day'
-  final String? leaveType;    // 'casual' etc
+  final String? leaveMode;  
+  final String? leaveType;  
   final String? startDate;
   final String? endDate;
   final String? reason;
-  final String? status;       // 'pending' | 'approved' | 'rejected'
+  final String? status;       
   final String? userId;
 
   LeaveModel({
