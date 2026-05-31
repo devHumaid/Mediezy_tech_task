@@ -16,12 +16,19 @@ class AppTextStyles {
   );
 
   static TextStyle heading3 = GoogleFonts.inter(
-    fontSize: 16, fontWeight: FontWeight.w600,
+    fontSize: 18, fontWeight: FontWeight.w800,
     color: AppColors.textPrimary,
   );
-
+ static TextStyle heading4 = GoogleFonts.inter(
+    fontSize: 15, fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+   static TextStyle heading5 = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.bold,
+    color: AppColors.primaryDark,
+  );
   static TextStyle bodyMedium = GoogleFonts.inter(
-    fontSize: 14, fontWeight: FontWeight.w400,
+    fontSize: 12, fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
   );
 
@@ -39,7 +46,10 @@ class AppTextStyles {
     fontSize: 11, fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
-
+  static TextStyle recenetactivitytimemaked = GoogleFonts.inter(
+    fontSize: 9, fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
   static TextStyle buttonPrimary = GoogleFonts.inter(
     fontSize: 15, fontWeight: FontWeight.w600,
     color: AppColors.white, letterSpacing: 0.3,

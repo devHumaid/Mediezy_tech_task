@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mediezy_tech_task/features/route/presentation/pages/route%20details_page..dart' show RouteDetailPage;
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/widgets/activitycard.dart';
+import '../../../../shared/widgets/custom_appbar.dart';
 import '../providers/route_provider.dart';
 import '../../data/models/route_model.dart';
 
@@ -30,40 +34,30 @@ class _MyRoutePageState extends State<MyRoutePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(
-        backgroundColor: AppColors.backgroundLight,
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: const Icon(Icons.arrow_back_ios_new,
-              size: 18, color: AppColors.textPrimary),
-        ),
-        title: const Text('My Route',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor: AppColors.white,
-              child: const Icon(Icons.person_outline,
-                  size: 20, color: AppColors.textSecondary),
-            ),
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.createAccountBg,
+      appBar: const CustomAppBar(), // no title
       body: Consumer<RouteProvider>(builder: (_, provider, __) {
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Search Bar ────────────────────────────────────────
-            _buildSearchBar(provider),
+            // ── Page title ─────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(30, 0, 20, 16),
+              child: Text(
+                'My Route',
+                style: AppTextStyles.heading1.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF000000),
+                ),
+              ),
+            ),
+
+            // ── Search Bar ─────────────────────────────────────────
+            _buildSearchBar(),
             const SizedBox(height: 12),
 
-            // ── List ──────────────────────────────────────────────
+            // ── List ───────────────────────────────────────────────
             Expanded(child: _buildList(provider)),
           ],
         );
@@ -72,54 +66,26 @@ class _MyRoutePageState extends State<MyRoutePage> {
   }
 
   // ── Search Bar ───────────────────────────────────────────────────────────
-  Widget _buildSearchBar(RouteProvider provider) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        height: 46,
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: AppColors.createAccountFieldBorder),
-        ),
-        child: Row(
-          children: [
-            const SizedBox(width: 14),
-            const Icon(Icons.search, size: 18, color: AppColors.textSecondary),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextField(
-                controller: _searchCtrl,
-                onChanged: provider.search,
-                style: const TextStyle(
-                    fontSize: 14, color: AppColors.textPrimary),
-                decoration: const InputDecoration(
-                  hintText: 'Search',
-                  hintStyle: TextStyle(
-                      fontSize: 14, color: AppColors.textFieldHint),
-                  border: InputBorder.none,
-                  isDense: true,
-                ),
-              ),
-            ),
-            if (_searchCtrl.text.isNotEmpty)
-              GestureDetector(
-                onTap: () {
-                  _searchCtrl.clear();
-                  provider.search('');
-                },
-                child: const Padding(
-                  padding: EdgeInsets.only(right: 14),
-                  child: Icon(Icons.close,
-                      size: 16, color: AppColors.textSecondary),
-                ),
-              ),
-          ],
-        ),
+ Widget _buildSearchBar() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: Container(
+      height: 40,
+      decoration: BoxDecoration(
+        color: AppColors.createAccountBg,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: AppColors.primaryDark,width: 2),
       ),
-    );
-  }
-
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Search', style:AppTextStyles.heading5),
+        
+        ],
+      ),
+    ),
+  );
+}
   // ── List ─────────────────────────────────────────────────────────────────
   Widget _buildList(RouteProvider provider) {
     if (provider.isLoading) {
@@ -137,22 +103,19 @@ class _MyRoutePageState extends State<MyRoutePage> {
                 size: 48, color: AppColors.textSecondary),
             const SizedBox(height: 12),
             Text(provider.errorMessage!,
-                style: const TextStyle(color: AppColors.error),
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
                 textAlign: TextAlign.center),
             const SizedBox(height: 16),
             GestureDetector(
               onTap: provider.fetchRouteList,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                 decoration: BoxDecoration(
                   gradient: AppColors.primaryGradient,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text('Retry',
-                    style: TextStyle(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.w600)),
+                child: Text('Retry',
+                    style: AppTextStyles.label.copyWith(color: AppColors.white)),
               ),
             ),
           ],
@@ -161,91 +124,29 @@ class _MyRoutePageState extends State<MyRoutePage> {
     }
 
     if (provider.routes.isEmpty) {
-      return const Center(
-        child: Text('No routes found',
-            style: TextStyle(color: AppColors.textSecondary)),
+      return Center(
+        child: Text('No routes found', style: AppTextStyles.bodySmall),
       );
     }
 
-    return ListView.separated(
+    return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       itemCount: provider.routes.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (_, i) => _RouteCard(route: provider.routes[i]),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Route Card
-// ═══════════════════════════════════════════════════════════════════════════
-class _RouteCard extends StatelessWidget {
-  final RouteModel route;
-  const _RouteCard({required this.route});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          // ── Avatar ───────────────────────────────────────────
-          Container(
-            width: 40, height: 40,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.backgroundLight,
-            ),
-            child: const Icon(Icons.person,
-                size: 22, color: AppColors.textSecondary),
+      itemBuilder: (_, i) {
+        final route = provider.routes[i];
+        return GestureDetector(
+  onTap: () => Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => RouteDetailPage(route: provider.routes[i]),
+    ),
+  ),
+  child: ActivityCard(
+            date: _formatDate(route.date),
+            markInTime: route.markInTime,
+            markOutTime: route.markOutTime,
           ),
-          const SizedBox(width: 12),
-
-          // ── Date + times ──────────────────────────────────────
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _formatDate(route.date),
-                  style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text(
-                      'Marked in at ${route.markInTime ?? "--"}',
-                      style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textSecondary),
-                    ),
-                    if (route.markOutTime != null) ...[
-                      const SizedBox(width: 6),
-                      const SizedBox(
-                          width: 1, height: 10,
-                          child: ColoredBox(color: AppColors.divider)),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Marked out at ${route.markOutTime}',
-                        style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -254,7 +155,7 @@ class _RouteCard extends StatelessWidget {
     try {
       final parts = date.split('-');
       if (parts.length != 3) return date;
-      final months = [
+      const months = [
         '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
       ];

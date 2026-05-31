@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/widgets/activitycard.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../leave/presentation/pages/apply_leave_page.dart';
 import '../../../route/presentation/pages/my_route_page.dart.dart';
+import '../../../route/presentation/pages/route details_page..dart';
 import '../../../route/presentation/providers/route_provider.dart';
 import '../providers/dashboard_provider.dart';
 
@@ -16,13 +20,13 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   @override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    context.read<DashboardProvider>().fetchAttendanceStatus();
-    context.read<RouteProvider>().fetchRouteList(); // ← add this
-  });
-}
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DashboardProvider>().fetchAttendanceStatus();
+      context.read<RouteProvider>().fetchRouteList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,18 +34,18 @@ void initState() {
     final user = auth.currentUser;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.createAccountBg, // F1F7F7
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTopBar(context, auth),
-              const SizedBox(height: 20),
+              // _buildTopBar(context, auth),
+              const SizedBox(height: 40),
               _buildProfileCard(user),
               const SizedBox(height: 16),
-              _buildAttendanceBanner(context),  // ← 3-state banner
+              _buildAttendanceBanner(context),
               const SizedBox(height: 16),
               _buildQuickActions(context),
               const SizedBox(height: 24),
@@ -61,8 +65,7 @@ void initState() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Dashboard',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+        Text('Dashboard', style: AppTextStyles.heading3),
         GestureDetector(
           onTap: () async {
             await auth.logout();
@@ -81,52 +84,50 @@ void initState() {
 
   // ── Profile Card ─────────────────────────────────────────────────────────
   Widget _buildProfileCard(user) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 28),
-      decoration: BoxDecoration(
-        color: AppColors.white, borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 72, height: 72,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.backgroundLight,
-              border: Border.all(color: AppColors.divider, width: 2),
+    return Column(
+      children: [
+        // ── Profile image ──
+        CircleAvatar(
+          radius: 36,
+          backgroundColor: AppColors.backgroundLight,
+          child: ClipOval(
+            child: Image.asset(
+              'assets/icons/profile_icon.png',
+              width: 72,
+              height: 72,
+              fit: BoxFit.cover,
             ),
-            child: const Icon(Icons.person, size: 40, color: AppColors.textSecondary),
           ),
-          const SizedBox(height: 12),
-          Text(
-            'Hi ${user?.fullName.isNotEmpty == true ? user!.fullName : "Valentin Alexandre"}',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-          ),
-          const SizedBox(height: 4),
-          Text(user?.role ?? 'Sales Executive',
-              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textSecondary),
-              const SizedBox(width: 3),
-              Text(
-                user?.location ?? 'Ernakulam',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Hi ${user?.fullName.isNotEmpty == true ? user!.fullName : "Valentin Alexandre"}',
+          style: AppTextStyles.heading2,
+        ),
+        const SizedBox(height: 0),
+        Text(
+          user?.role ?? 'Sales Executive',
+          style: AppTextStyles.bodySmall,
+        ),
+        const SizedBox(height: 0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textSecondary),
+            const SizedBox(width: 3),
+            Text(
+              user?.location ?? 'Ernakulam',
+              style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
   // ── Attendance Banner ─────────────────────────────────────────────────────
   Widget _buildAttendanceBanner(BuildContext context) {
     return Consumer<DashboardProvider>(builder: (_, provider, __) {
-      // Show snackbar feedback after marking
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (provider.successMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -144,120 +145,126 @@ void initState() {
           provider.clearMessages();
         }
       });
-
       return _AttendanceBanner(provider: provider);
     });
   }
 
   // ── Quick Actions ─────────────────────────────────────────────────────────
-  Widget _buildQuickActions(BuildContext context) {
-    return Row(
-      children: [
-        // Route tile – dark gradient
-     Expanded(
-  child: GestureDetector(
-    onTap: () => Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const MyRoutePage()),
-    ),
-    child: Container(
-      height: 90,
-      decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 40, height: 40,
+Widget _buildQuickActions(BuildContext context) {
+  return Row(
+    children: [
+      // Route tile
+      Expanded(
+        child: GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const MyRoutePage()),
+          ),
+          child: Container(
+            height: 98,
+            padding: const EdgeInsets.only(left: 16),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.white.withOpacity(0.15),
+              gradient: AppColors.primaryGradient,
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.map_outlined,
-                size: 20, color: AppColors.white),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 34, height: 34,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.white.withOpacity(0.15),
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/icons/route_icon.png',
+                      width: 12, height: 13,
+                      color: AppColors.white, // tint white
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text('Route', style: AppTextStyles.label.copyWith(color: AppColors.white,fontWeight: FontWeight.bold,fontSize: 14)),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          const Text('Route',
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.white)),
-        ],
+        ),
       ),
-    ),
-  ),
-),
-        const SizedBox(width: 14),
+      const SizedBox(width: 14),
 
-        // Apply Leave tile – white
-   Expanded(
-  child: GestureDetector(
-    onTap: () => Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const ApplyLeavePage()),
-    ),
-    child: Container(
-      height: 90,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2))],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 40, height: 40,
-            decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.backgroundLight),
-            child: const Icon(Icons.calendar_month_outlined,
-                size: 20, color: AppColors.textPrimary),
+      // Apply Leave tile
+      Expanded(
+        child: GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ApplyLeavePage()),
           ),
-          const SizedBox(height: 8),
-          const Text('Apply Leave',
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary)),
-        ],
+          child: Container(
+            height: 98,
+            padding: const EdgeInsets.only(left: 16),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 34, height: 34,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.primaryDark, // dark circle like Figma
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/icons/calendar.png',
+                      width: 12, height: 13,
+                      color: AppColors.white, // tint white
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text('Apply Leave', style: AppTextStyles.label.copyWith(color: AppColors.primaryDark,fontWeight: FontWeight.bold,fontSize: 14)),
+              ],
+            ),
+          ),
+        ),
       ),
-    ),
-  ),
-),
-      ],
-    );
-  }
-
+    ],
+  );
+}
   // ── Recent Activity ───────────────────────────────────────────────────────
   Widget _buildRecentActivityHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Recent Activity',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-       GestureDetector(
-  onTap: () => Navigator.of(context).push(
-    MaterialPageRoute(builder: (_) => const MyRoutePage()),
-  ),
-  child: const Row(
-    children: [
-      Text('View All',
-          style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-      SizedBox(width: 2),
-      Icon(Icons.chevron_right,
-          size: 16, color: AppColors.textSecondary),
-    ],
-  ),
-),
+        Text('Recent Activity', style: AppTextStyles.heading4),
+        GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const MyRoutePage()),
+          ),
+          child: Row(
+            children: [
+              Text('View All', style: AppTextStyles.heading5),
+              const SizedBox(width: 2),
+              const Icon(Icons.chevron_right, size: 16, color: AppColors.textSecondary),
+            ],
+          ),
+        ),
       ],
     );
   }
 
- Widget _buildActivityList() {
+  
+Widget _buildActivityList() {
   return Consumer<RouteProvider>(builder: (_, provider, __) {
     if (provider.isLoading) {
       return const Center(
@@ -265,74 +272,33 @@ void initState() {
       );
     }
     if (provider.routes.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Text('No recent activity',
-              style: TextStyle(color: AppColors.textSecondary)),
+          padding: const EdgeInsets.all(16),
+          child: Text('No recent activity', style: AppTextStyles.bodySmall),
         ),
       );
     }
     final recent = provider.routes.take(3).toList();
     return Column(
-      children: recent.map((route) => Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(12)),
-        child: Row(
-          children: [
-            Container(
-              width: 38, height: 38,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.backgroundLight),
-              child: const Icon(Icons.person,
-                  size: 20, color: AppColors.textSecondary),
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(route.date ?? '',
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 3),
-                Row(children: [
-                  Text(
-                    'Marked in at ${route.markInTime ?? "--"}',
-                    style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textSecondary),
-                  ),
-                  if (route.markOutTime != null) ...[
-                    const SizedBox(width: 6),
-                    const SizedBox(width: 1, height: 10,
-                        child: ColoredBox(color: AppColors.divider)),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Marked out at ${route.markOutTime}',
-                      style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textSecondary),
-                    ),
-                  ],
-                ]),
-              ],
-            ),
-          ],
+      children: recent.map((route) => GestureDetector(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => RouteDetailPage(route: route),
+          ),
+        ),
+        child: ActivityCard(
+          date: route.date ?? '',   // API already returns "31 May 2026"
+          markInTime: route.markInTime,
+          markOutTime: route.markOutTime,
         ),
       )).toList(),
     );
   });
-}
-}
+}}
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Attendance Banner – 3 states (separate widget for clarity)
+// Attendance Banner
 // ═══════════════════════════════════════════════════════════════════════════
 class _AttendanceBanner extends StatelessWidget {
   final DashboardProvider provider;
@@ -346,12 +312,12 @@ class _AttendanceBanner extends StatelessWidget {
         key: ValueKey(provider.bannerState),
         width: double.infinity,
         padding: EdgeInsets.symmetric(
-          horizontal: 16,
+          horizontal: 25,
           vertical: provider.bannerState == BannerState.completed ? 20 : 14,
         ),
         decoration: BoxDecoration(
           gradient: AppColors.primaryGradient,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(50),
         ),
         child: _buildBannerContent(context),
       ),
@@ -360,41 +326,33 @@ class _AttendanceBanner extends StatelessWidget {
 
   Widget _buildBannerContent(BuildContext context) {
     switch (provider.bannerState) {
-
-      // ── State 1: Not started → Mark In ────────────────────────────
-case BannerState.notStarted:
-  return _buildWithButton(
-    title:       'Start Your Day!',
-    subtitle:    'Your shift starts at ${provider.attendance?.shiftStartTime ?? "09:00"}',  // ← CHANGE THIS
-    buttonLabel: 'Mark In',
-    buttonIcon:  Icons.fingerprint,
-    onTap: () => provider.markAttendance(markIn: true),
-  );
-
-      // ── State 2: Working → Mark Out ───────────────────────────────
+      case BannerState.notStarted:
+        return _buildWithButton(
+          title: 'Start Your Day!',
+          subtitle: 'Your shift starts at ${provider.attendance?.shiftStartTime ?? "09:00"}',
+          buttonLabel: 'Mark In',
+          onTap: () => provider.markAttendance(markIn: true),
+        );
       case BannerState.working:
         return _buildWithButton(
-          title:    'Your work started',
+          title: 'Your work started',
           subtitle: 'Checked In at ${provider.attendance?.checkInTime ?? "9:29"}',
           buttonLabel: 'Mark Out',
-          buttonIcon:  Icons.logout_outlined,
           onTap: () => provider.markAttendance(markIn: false),
         );
-
-      // ── State 3: Day completed → no button ───────────────────────
       case BannerState.completed:
         return Column(
           children: [
-            const Text(
+            Text(
               'Your Day Completed',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.white),
+              style: AppTextStyles.heading3.copyWith(color: AppColors.white),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Text(
               'Started at ${provider.attendance?.checkInTime ?? "9:29"} '
               'Ended at ${provider.attendance?.checkOutTime ?? "5:31"}',
-              style: const TextStyle(fontSize: 12, color: Colors.white70),
+              style: AppTextStyles.caption.copyWith(color: Colors.white70),
               textAlign: TextAlign.center,
             ),
           ],
@@ -402,33 +360,29 @@ case BannerState.notStarted:
     }
   }
 
-  /// Shared layout for State 1 & 2 (text left + white pill button right)
   Widget _buildWithButton({
     required String title,
     required String subtitle,
     required String buttonLabel,
-    required IconData buttonIcon,
     required VoidCallback onTap,
   }) {
     final isLoading = provider.isLoading;
     return Row(
       children: [
-        // Left text
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.white)),
+                  style: AppTextStyles.label.copyWith(
+                      fontSize: 13.5, color: AppColors.white, fontWeight: FontWeight.w700)),
               const SizedBox(height: 3),
               Text(subtitle,
-                  style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                  style: AppTextStyles.caption.copyWith(color:AppColors.white,fontSize: 11.5)),
             ],
           ),
         ),
         const SizedBox(width: 12),
-
-        // Right white pill button
         GestureDetector(
           onTap: isLoading ? null : onTap,
           child: Container(
@@ -440,17 +394,18 @@ case BannerState.notStarted:
             child: isLoading
                 ? const SizedBox(
                     width: 18, height: 18,
-                    child: CircularProgressIndicator(color: AppColors.primaryTeal, strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                        color: AppColors.primaryTeal, strokeWidth: 2),
                   )
                 : Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(buttonIcon, size: 16, color: AppColors.primaryTeal),
-                      const SizedBox(width: 6),
+                      Image.asset("assets/icons/marking.png",height: 13.5,width: 11.5,),
+                      const SizedBox(width: 3),
                       Text(buttonLabel,
-                          style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primaryTeal,
-                          )),
+                          style: AppTextStyles.label.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.bold,fontSize: 11.5)),
                     ],
                   ),
           ),

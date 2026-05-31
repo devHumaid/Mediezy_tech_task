@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/widgets/custom_appbar.dart';
 import '../providers/leave_provider.dart';
 import '../../data/models/leave_model.dart';
 
@@ -18,6 +20,22 @@ class _LeaveListPageState extends State<LeaveListPage> {
   ];
   int _selectedMonth = DateTime.now().month;
 
+  // ── Dummy data for design preview ──
+  final List<LeaveModel> _dummyLeaves = [
+    LeaveModel(
+      leaveMode: 'half_day', leaveType: 'casual',
+      startDate: '2025-08-20', status: 'approved',
+    ),
+    LeaveModel(
+      leaveMode: 'half_day', leaveType: 'casual',
+      startDate: '2025-08-20', status: 'pending',
+    ),
+    LeaveModel(
+      leaveMode: 'half_day', leaveType: 'casual',
+      startDate: '2025-08-20', status: 'rejected',
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -29,45 +47,38 @@ class _LeaveListPageState extends State<LeaveListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(
-        backgroundColor: AppColors.backgroundLight,
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: const Icon(Icons.arrow_back_ios_new,
-              size: 18, color: AppColors.textPrimary),
-        ),
-        title: const Text('Leave List',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor: AppColors.white,
-              child: const Icon(Icons.person_outline,
-                  size: 20, color: AppColors.textSecondary),
-            ),
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.createAccountBg,
+      appBar: const CustomAppBar(),
       body: Consumer<LeaveProvider>(builder: (_, provider, __) {
+        // ── use dummy while empty ──
+        final leaves = provider.leaves.isEmpty ? _dummyLeaves : provider.leaves;
+
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Filter Tabs ───────────────────────────────────────
+            // ── Page title ─────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(35, 0, 20, 16),
+              child: Text(
+                'Leave List',
+                style: AppTextStyles.heading1.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF000000),
+                ),
+              ),
+            ),
+
+            // ── Filter Tabs ───────────────────────────────────
             _buildFilterTabs(provider),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
 
-            // ── Month + Count Row ─────────────────────────────────
-            _buildMonthRow(provider),
-            const SizedBox(height: 12),
+            // ── Month + Count Row ─────────────────────────────
+            _buildMonthRow(provider, leaves.length),
+            const SizedBox(height: 14),
 
-            // ── List ──────────────────────────────────────────────
-            Expanded(child: _buildList(provider)),
+            // ── List ──────────────────────────────────────────
+            Expanded(child: _buildList(provider, leaves)),
           ],
         );
       }),
@@ -76,129 +87,128 @@ class _LeaveListPageState extends State<LeaveListPage> {
 
   // ── Filter Tabs ─────────────────────────────────────────────────────────
   Widget _buildFilterTabs(LeaveProvider provider) {
-  return SingleChildScrollView(          // ← wrap this
-    scrollDirection: Axis.horizontal,
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: Row(
-      children: _filters.map((filter) {
-        final isSelected =
-            provider.selectedFilter == filter.toLowerCase() ||
-            (filter == 'All' && provider.selectedFilter == 'all') ||
-            (filter == 'Reject' && provider.selectedFilter == 'rejected');
-        return GestureDetector(
-          onTap: () {
-            String val = filter.toLowerCase();
-            if (filter == 'Reject') val = 'rejected';
-            provider.setFilter(val);
-          },
-          child: Container(
-            margin: const EdgeInsets.only(right: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-            decoration: BoxDecoration(
-              gradient: isSelected ? AppColors.primaryGradient : null,
-              color: isSelected ? null : AppColors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(filter,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected
-                      ? AppColors.white
-                      : AppColors.textSecondary,
-                )),
-          ),
-        );
-      }).toList(),
-    ),
-  );
-}
-
-  // ── Month Row ────────────────────────────────────────────────────────────
-  Widget _buildMonthRow(LeaveProvider provider) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 15),
+      height: 44,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(30),
+      ),
       child: Row(
-        children: [
-          // Month dropdown
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.createAccountFieldBorder),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<int>(
-                value: _selectedMonth,
-                icon: const Icon(Icons.keyboard_arrow_down,
-                    size: 18, color: AppColors.textSecondary),
-                isDense: true,
-                items: List.generate(12, (i) => DropdownMenuItem(
-                  value: i + 1,
-                  child: Text(_months[i],
-                      style: const TextStyle(
-                          fontSize: 13, color: AppColors.textPrimary)),
-                )),
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() => _selectedMonth = val);
-                    provider.setMonth(val.toString());
-                  }
-                },
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: _filters.map((filter) {
+          final isSelected =
+              provider.selectedFilter == filter.toLowerCase() ||
+              (filter == 'All'    && provider.selectedFilter == 'all') ||
+              (filter == 'Reject' && provider.selectedFilter == 'rejected');
+          return GestureDetector(
+            onTap: () {
+              String val = filter.toLowerCase();
+              if (filter == 'Reject') val = 'rejected';
+              provider.setFilter(val);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              decoration: BoxDecoration(
+                gradient: isSelected ? AppColors.primaryGradient : null,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Text(
+                filter,
+                style: AppTextStyles.label.copyWith(
+                  color: isSelected ? AppColors.white : AppColors.textSecondary,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 10),
-
-          // Leave count pill
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.createAccountFieldBorder),
-            ),
-            child: Text(
-              'Your Leave  ${provider.leaves.length.toString().padLeft(2, '0')}',
-              style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary),
-            ),
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }
 
+ Widget _buildMonthRow(LeaveProvider provider, int count) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Month dropdown
+        Container(
+          height: 38,
+          width: 120,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.primaryDark, width: 1.5),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: _selectedMonth,
+              icon: Image.asset(
+                'assets/icons/arrow_icon.png', // replace with your asset
+                width: 18, height: 18,
+              ),
+              isDense: true,
+              alignment: Alignment.center,
+              items: List.generate(12, (i) => DropdownMenuItem(
+                value: i + 1,
+                alignment: Alignment.center,
+                child: Text(_months[i], style: AppTextStyles.label),
+              )),
+              onChanged: (val) {
+                if (val != null) {
+                  setState(() => _selectedMonth = val);
+                  provider.setMonth(val.toString());
+                }
+              },
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+
+        // Leave count pill
+        Container(
+          height: 38,
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.primaryDark, width: 1.5),
+          ),
+          child: Center(
+            child: Text(
+              'Your Leave  ${count.toString().padLeft(2, '0')}',
+              style: AppTextStyles.label,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
   // ── List ─────────────────────────────────────────────────────────────────
-  Widget _buildList(LeaveProvider provider) {
+  Widget _buildList(LeaveProvider provider, List<LeaveModel> leaves) {
     if (provider.isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.primaryTeal),
       );
     }
-
-    if (provider.errorMessage != null) {
+    if (provider.errorMessage != null && provider.leaves.isNotEmpty) {
       return Center(
         child: Text(provider.errorMessage!,
-            style: const TextStyle(color: AppColors.error)),
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
       );
     }
-
-    if (provider.leaves.isEmpty) {
-      return const Center(
-        child: Text('No leaves found',
-            style: TextStyle(color: AppColors.textSecondary)),
-      );
-    }
-
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: provider.leaves.length,
+      itemCount: leaves.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, i) => _LeaveCard(leave: provider.leaves[i]),
+      itemBuilder: (_, i) => _LeaveCard(leave: leaves[i]),
     );
   }
 }
@@ -229,14 +239,15 @@ class _LeaveCard extends StatelessWidget {
             children: [
               Text(
                 '${_capitalize(leave.leaveMode ?? 'Full Day')} Application',
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textSecondary),
+                style: AppTextStyles.caption,
               ),
               if (status == 'pending')
                 GestureDetector(
                   onTap: () {},
-                  child: const Icon(Icons.delete_outline,
-                      size: 18, color: AppColors.textSecondary),
+                  child: Image.asset(
+                    'assets/icons/delete_icon.png', // replace with your asset
+                    width: 18, height: 18,
+                  ),
                 ),
             ],
           ),
@@ -245,20 +256,21 @@ class _LeaveCard extends StatelessWidget {
           // ── Date ───────────────────────────────────────────────
           Text(
             _formatDate(leave.startDate),
-            style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary),
+            style: AppTextStyles.label.copyWith(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: 4),
 
-          // ── Leave type label ────────────────────────────────────
+          // ── Leave type ─────────────────────────────────────────
           Text(
             _capitalize(leave.leaveType ?? 'Casual'),
-            style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primaryTeal),
+            style: AppTextStyles.label.copyWith(
+              color: AppColors.casual,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 12),
 
@@ -271,62 +283,53 @@ class _LeaveCard extends StatelessWidget {
 
   Widget _buildStatusRow(String status) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _statusStep(label: 'Create',   done: true),
+        _statusStep(label: 'Create', type: 'done'),
         _connector(),
-        _statusStep(label: 'Review',   done: true),
+        _statusStep(label: 'Review', type: 'done'),
         _connector(),
         _statusStep(
           label: _capitalize(status),
-          done: status == 'approved',
-          pending: status == 'pending',
-          rejected: status == 'rejected',
+          type: status, // 'approved' | 'pending' | 'rejected'
         ),
       ],
     );
   }
 
-  Widget _statusStep({
-    required String label,
-    bool done     = false,
-    bool pending  = false,
-    bool rejected = false,
-  }) {
-    Color color;
-    IconData icon;
+  Widget _statusStep({required String label, required String type}) {
+    String iconAsset;
 
-    if (rejected) {
-      color = AppColors.error;
-      icon  = Icons.cancel;
-    } else if (pending) {
-      color = Colors.orange;
-      icon  = Icons.check_circle;
-    } else if (done) {
-      color = AppColors.success;
-      icon  = Icons.check_circle;
-    } else {
-      color = AppColors.divider;
-      icon  = Icons.check_circle_outline;
+    switch (type) {
+      case 'rejected':
+        iconAsset = 'assets/icons/Group 6.png'; // replace
+        break;
+      case 'pending':
+        iconAsset = 'assets/icons/pending_icon.png'; // replace
+        break;
+      case 'approved':
+      case 'done':
+      default:
+        iconAsset = 'assets/icons/complete_icon.png'; // replace
+        break;
     }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: color),
+        Image.asset(iconAsset, width: 16, height: 16),
         const SizedBox(width: 4),
-        Text(label,
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: color)),
+        Text(
+          label,
+          style: AppTextStyles.bodyMedium
+        ),
       ],
     );
   }
 
   Widget _connector() => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: Container(
-            width: 20, height: 1, color: AppColors.divider),
+        child: Container(width: 20, height: 1, color: AppColors.divider),
       );
 
   String _capitalize(String s) =>
@@ -337,24 +340,22 @@ class _LeaveCard extends StatelessWidget {
     try {
       final parts = date.split('-');
       if (parts.length != 3) return date;
-      final months = [
+      const months = [
         '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
       ];
-      final m = int.tryParse(parts[1]) ?? 0;
-      return '${_dayWithSuffix(int.tryParse(parts[2]) ?? 0)}, ${months[m]} ${parts[0]}';
+      final m   = int.tryParse(parts[1]) ?? 0;
+      final day = int.tryParse(parts[2]) ?? 0;
+      final dow = _dayOfWeek(int.tryParse(parts[0]) ?? 0, m, day);
+      return '$dow, ${months[m]} $day, ${parts[0]}';
     } catch (_) {
-      return date;
+      return date ?? '';
     }
   }
 
-  String _dayWithSuffix(int day) {
-    if (day >= 11 && day <= 13) return '${day}th';
-    switch (day % 10) {
-      case 1: return '${day}st';
-      case 2: return '${day}nd';
-      case 3: return '${day}rd';
-      default: return '${day}th';
-    }
+  String _dayOfWeek(int y, int m, int d) {
+    final dt = DateTime(y, m, d);
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return days[dt.weekday - 1];
   }
 }

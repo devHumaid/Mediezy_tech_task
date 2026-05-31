@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/widgets/custom_appbar.dart';
 import '../../../../shared/widgets/custom_primary_btn.dart';
 import '../providers/auth_provider.dart';
 
@@ -62,26 +63,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.createAccountBg, // F1F7F7
-      appBar: AppBar(
-        backgroundColor: AppColors.createAccountBg,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
-        ),
-     title: Text('Create Account', style: AppTextStyles.heading3),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor: AppColors.white,
-              child: const Icon(Icons.person_outline, size: 20, color: AppColors.textSecondary),
-            ),
-          ),
-        ],
-      ),
+      appBar: CustomAppBar(title: 'Create Account'),
+
       body: Form(
         key: _formKey,
         child: ListView(
@@ -127,11 +110,14 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
             const SizedBox(height: 24),
             // ── Save button (reusable widget) ──
             Consumer<AuthProvider>(builder: (_, auth, __) {
-              return PrimaryButton(
-                label: 'Save',
-                onPressed: _handleSave,
-                isLoading: auth.status == AuthStatus.loading,
-                height: 52,
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: PrimaryButton(
+                  label: 'Save',
+                  onPressed: _handleSave,
+                  isLoading: auth.status == AuthStatus.loading,
+                  height: 45,
+                ),
               );
             }),
           ],
@@ -149,12 +135,15 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     String? Function(String?)? validator,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTextStyles.createAccountLabel),
-          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Text(label, style: AppTextStyles.createAccountLabel),
+          ),
+          const SizedBox(height: 3),
           TextFormField(
             controller: ctrl,
             keyboardType: keyboardType,
